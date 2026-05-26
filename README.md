@@ -242,9 +242,7 @@ Install with a Thunderstore-compatible mod manager.
 1. Install BepInEx.
 2. Place `RemainingValueTracker.dll` into:
 
-`BepInEx/plugins/RemainingValueTracker/`
-
-BepInEx/plugins/ExtraBattleUpgrades/
+`BepInEx/plugins/ExtraBattleUpgrades/`
 
 ## Work In Progress
 
