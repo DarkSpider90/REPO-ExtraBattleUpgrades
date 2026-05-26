@@ -1,0 +1,10 @@
+{
+  "name": "ExtraBattleUpgrades"
+  "version_number": "1.0.0",
+  "website_url": "https://github.com/DarkSpider90/REPO-ExtraBattleUpgrades.git",
+  "description": "Adds extra upgrades for R.E.P.O.",
+  "dependencies": [
+    "BepInEx-BepInExPack-5.4.2305"
+    "Zehs-REPOLib-4.1.0"
+  ]
+}
