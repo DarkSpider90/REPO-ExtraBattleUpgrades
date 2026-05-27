@@ -222,6 +222,12 @@ internal static class SecondChancePatch
         body.rb.AddForce((Vector3.up * verticalForce + sidewaysInstability) * body.rb.mass, ForceMode.Impulse);
         body.rb.AddTorque(Random.insideUnitSphere * body.rb.mass, ForceMode.Impulse);
     }
+    
+    internal static void ResetState()
+    {
+        PitRescueTimes.Clear();
+    }
+    
 }
 
 [HarmonyPatch(typeof(HurtCollider), "PlayerHurt")]

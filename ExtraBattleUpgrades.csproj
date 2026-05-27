@@ -51,6 +51,14 @@
       <HintPath>..\..\GameAssets\Managed\UnityEngine.PhysicsModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>..\..\GameAssets\Managed\Unity.TextMeshPro.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>..\..\GameAssets\Managed\UnityEngine.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="Photon3Unity3D">
       <HintPath>..\..\GameAssets\Managed\Photon3Unity3D.dll</HintPath>
       <Private>false</Private>

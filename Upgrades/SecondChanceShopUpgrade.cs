@@ -103,4 +103,39 @@ internal sealed class SecondChanceShopUpgrade : ShopUpgrade
 
         return Math.Max(30f, 120f - reduction);
     }
+    
+    internal float RemainingCooldownSeconds(PlayerAvatar player)
+    {
+        string playerId = PlayerId(player);
+        if (string.IsNullOrWhiteSpace(playerId) || !_cooldownEnds.TryGetValue(playerId, out float cooldownEnd))
+        {
+            return 0f;
+        }
+
+        return Math.Max(0f, cooldownEnd - Time.time);
+    }
+
+    internal bool IsReady(PlayerAvatar player)
+    {
+        return player != null
+               && Enabled.Value
+               && RegisteredUpgrade != null
+               && GetLevel(player) > 0
+               && RemainingCooldownSeconds(player) <= 0f;
+    }
+
+    internal bool HasUpgrade(PlayerAvatar player)
+    {
+        return player != null
+               && Enabled.Value
+               && RegisteredUpgrade != null
+               && GetLevel(player) > 0;
+    }
+    
+    internal void ResetState()
+    {
+        _cooldownEnds.Clear();
+        _protectionEnds.Clear();
+    }
+    
 }

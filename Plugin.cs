@@ -25,7 +25,8 @@ public sealed class ExtraBattleUpgradesPlugin : BaseUnityPlugin
     internal static EnergyLeechShopUpgrade EnergyLeech { get; private set; }
     internal static ShockGripShopUpgrade ShockGrip { get; private set; }
     internal static SecondChanceShopUpgrade SecondChance { get; private set; }
-
+    internal static PanicResponseShopUpgrade PanicResponse { get; private set; }
+    
     private Harmony _harmony;
     private bool _statsLabelsReady;
 
@@ -42,12 +43,14 @@ public sealed class ExtraBattleUpgradesPlugin : BaseUnityPlugin
         EnergyLeech = new EnergyLeechShopUpgrade(Config, bundle);
         ShockGrip = new ShockGripShopUpgrade(Config, bundle);
         SecondChance = new SecondChanceShopUpgrade(Config, bundle);
+        PanicResponse = new PanicResponseShopUpgrade(Config, bundle);
 
         Armor.Register();
         Overcharge.Register();
         EnergyLeech.Register();
         ShockGrip.Register();
         SecondChance.Register();
+        PanicResponse.Register();
 
         _harmony = new Harmony(PluginGuid);
         _harmony.PatchAll();
@@ -78,6 +81,7 @@ public sealed class ExtraBattleUpgradesPlugin : BaseUnityPlugin
         GrantStartingLevels(EnergyLeech);
         GrantStartingLevels(ShockGrip);
         GrantStartingLevels(SecondChance);
+        GrantStartingLevels(PanicResponse);
     }
 
     private void OnDestroy()
@@ -92,7 +96,8 @@ public sealed class ExtraBattleUpgradesPlugin : BaseUnityPlugin
         SetStatsLabel(statsManager, EnergyLeechShopUpgrade.StatsDictionaryKey, "Energy Leech");
         SetStatsLabel(statsManager, ShockGripShopUpgrade.StatsDictionaryKey, "Shock Grip");
         SetStatsLabel(statsManager, SecondChanceShopUpgrade.StatsDictionaryKey, "Second Chance");
-
+        SetStatsLabel(statsManager, PanicResponseShopUpgrade.StatsDictionaryKey, "Panic Response");
+        
         if (StatsUI.instance != null)
         {
             StatsUI.instance.ResetPlayerUpgradeNames();
