@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using ExtraBattleUpgrades.Combat;
 using HarmonyLib;
 using UnityEngine;
+using ExtraBattleUpgrades.Visuals;
 
 namespace ExtraBattleUpgrades.Patches;
 
@@ -101,6 +102,13 @@ internal static class ShockGripPatch
         try
         {
             health.Hurt(damage, Vector3.up);
+
+            ShockGripVisuals.PlayLocal(holder);
+
+            if (GameManager.Multiplayer())
+            {
+                ShockGripVisualRelay.Broadcast(holder);
+            }
         }
         finally
         {

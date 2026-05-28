@@ -14,6 +14,16 @@ internal sealed class SecondChanceShopUpgrade : ShopUpgrade
 
     protected override string UpgradeId => "SecondChance";
 
+    private readonly ConfigEntry<float> _invulnerabilitySecondsPerLevel;
+    private readonly ConfigEntry<int> _invulnerabilityMaxScalingLevel;
+
+    private readonly ConfigEntry<float> _cooldownBase;
+    private readonly ConfigEntry<int> _cooldownReductionStartLevel;
+    private readonly ConfigEntry<int> _cooldownFastReductionMaxLevel;
+    private readonly ConfigEntry<float> _cooldownReductionPerLevel;
+    private readonly ConfigEntry<float> _cooldownReductionPerExtraLevel;
+    private readonly ConfigEntry<float> _cooldownMin;
+
     internal SecondChanceShopUpgrade(ConfigFile config, AssetBundle bundle)
         : base(
             config,
@@ -22,6 +32,53 @@ internal sealed class SecondChanceShopUpgrade : ShopUpgrade
             "assets/extrabattleupgrades/items/item upgrade player second chance.prefab",
             1.0f)
     {
+        _invulnerabilitySecondsPerLevel = config.Bind(
+            "Second Chance Upgrade",
+            "Invulnerability Seconds Per Level",
+            1f,
+            "Invulnerability duration gained per level before the cap. 1 = 1 second.");
+
+        _invulnerabilityMaxScalingLevel = config.Bind(
+            "Second Chance Upgrade",
+            "Invulnerability Max Scaling Level",
+            5,
+            "Level where invulnerability duration stops increasing.");
+
+        _cooldownBase = config.Bind(
+            "Second Chance Upgrade",
+            "Cooldown Base",
+            120f,
+            "Base Second Chance cooldown, in seconds.");
+
+        _cooldownReductionStartLevel = config.Bind(
+            "Second Chance Upgrade",
+            "Cooldown Reduction Start Level",
+            6,
+            "Level where cooldown reduction starts.");
+
+        _cooldownFastReductionMaxLevel = config.Bind(
+            "Second Chance Upgrade",
+            "Cooldown Fast Reduction Max Level",
+            10,
+            "Last level that uses the main cooldown reduction value.");
+
+        _cooldownReductionPerLevel = config.Bind(
+            "Second Chance Upgrade",
+            "Cooldown Reduction Per Level",
+            5f,
+            "Cooldown reduction per level during the main reduction range, in seconds.");
+
+        _cooldownReductionPerExtraLevel = config.Bind(
+            "Second Chance Upgrade",
+            "Cooldown Reduction Per Extra Level",
+            0.5f,
+            "Cooldown reduction per level after the fast reduction range, in seconds.");
+
+        _cooldownMin = config.Bind(
+            "Second Chance Upgrade",
+            "Cooldown Minimum",
+            30f,
+            "Minimum Second Chance cooldown, in seconds.");
     }
 
     internal bool TryActivate(PlayerAvatar player, out float invulnerabilitySeconds)
@@ -33,10 +90,10 @@ internal sealed class SecondChanceShopUpgrade : ShopUpgrade
             return false;
         }
 
-        string playerId = SemiFunc.PlayerGetSteamID(player);
+        string playerId = PlayerId(player);
         if (string.IsNullOrWhiteSpace(playerId))
         {
-            playerId = player.GetInstanceID().ToString();
+            return false;
         }
 
         float now = Time.time;
@@ -75,35 +132,6 @@ internal sealed class SecondChanceShopUpgrade : ShopUpgrade
         return Math.Max(0f, protectionEnd - Time.time);
     }
 
-    private static string PlayerId(PlayerAvatar player)
-    {
-        if (player == null)
-        {
-            return string.Empty;
-        }
-
-        string playerId = SemiFunc.PlayerGetSteamID(player);
-        return string.IsNullOrWhiteSpace(playerId) ? player.GetInstanceID().ToString() : playerId;
-    }
-
-    private static float InvulnerabilitySeconds(int level)
-    {
-        return Math.Min(level, 5);
-    }
-
-    private static float CooldownSeconds(int level)
-    {
-        float reduction = 0f;
-        if (level > 5)
-        {
-            int firstCooldownLevels = Math.Min(level - 5, 5);
-            int extraCooldownLevels = Math.Max(0, level - 10);
-            reduction = firstCooldownLevels * 5f + extraCooldownLevels * 0.5f;
-        }
-
-        return Math.Max(30f, 120f - reduction);
-    }
-    
     internal float RemainingCooldownSeconds(PlayerAvatar player)
     {
         string playerId = PlayerId(player);
@@ -131,11 +159,54 @@ internal sealed class SecondChanceShopUpgrade : ShopUpgrade
                && RegisteredUpgrade != null
                && GetLevel(player) > 0;
     }
-    
+
     internal void ResetState()
     {
         _cooldownEnds.Clear();
         _protectionEnds.Clear();
     }
-    
+
+    private float InvulnerabilitySeconds(int level)
+    {
+        int maxScalingLevel = Math.Max(1, _invulnerabilityMaxScalingLevel.Value);
+        int effectiveLevel = Math.Min(level, maxScalingLevel);
+
+        return Math.Max(0f, effectiveLevel * _invulnerabilitySecondsPerLevel.Value);
+    }
+
+    private float CooldownSeconds(int level)
+    {
+        float baseCooldown = Math.Max(0f, _cooldownBase.Value);
+        float minCooldown = Math.Max(0f, _cooldownMin.Value);
+
+        int startLevel = Math.Max(1, _cooldownReductionStartLevel.Value);
+        int fastMaxLevel = Math.Max(startLevel, _cooldownFastReductionMaxLevel.Value);
+
+        float reduction = 0f;
+
+        if (level >= startLevel)
+        {
+            int fastLevels = Math.Min(level, fastMaxLevel) - startLevel + 1;
+            reduction += Math.Max(0, fastLevels) * Math.Max(0f, _cooldownReductionPerLevel.Value);
+        }
+
+        if (level > fastMaxLevel)
+        {
+            int extraLevels = level - fastMaxLevel;
+            reduction += extraLevels * Math.Max(0f, _cooldownReductionPerExtraLevel.Value);
+        }
+
+        return Math.Max(minCooldown, baseCooldown - reduction);
+    }
+
+    private static string PlayerId(PlayerAvatar player)
+    {
+        if (player == null)
+        {
+            return string.Empty;
+        }
+
+        string playerId = SemiFunc.PlayerGetSteamID(player);
+        return string.IsNullOrWhiteSpace(playerId) ? player.GetInstanceID().ToString() : playerId;
+    }
 }

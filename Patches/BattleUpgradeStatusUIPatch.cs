@@ -48,9 +48,9 @@ internal static class BattleUpgradeStatusUIPatch
         EnsurePanicIcon(__instance.transform, text);
 
         bool hasPanic = PanicResponsePatch.HasUpgrade(player);
-        bool panicActive = PanicResponsePatch.IsActive(player);
-
-        _panicIcon.gameObject.SetActive(hasPanic);
+        
+        bool showIcon = ExtraBattleUpgradesPlugin.HudConfig.PanicIconEnabled.Value && hasPanic;
+        _panicIcon.gameObject.SetActive(showIcon);
 
         if (!hasPanic)
         {
@@ -93,9 +93,9 @@ internal static class BattleUpgradeStatusUIPatch
 
         SecondChanceShopUpgrade upgrade = ExtraBattleUpgradesPlugin.SecondChance;
         bool hasSecondChance = upgrade != null && upgrade.HasUpgrade(player);
-        bool secondChanceActive = upgrade != null && upgrade.RemainingProtectionSeconds(player) > 0f;
-
-        _secondChanceIcon.gameObject.SetActive(hasSecondChance);
+       
+        bool showIcon = ExtraBattleUpgradesPlugin.HudConfig.SecondChanceIconEnabled.Value && hasSecondChance;
+        _secondChanceIcon.gameObject.SetActive(showIcon);
 
         if (!hasSecondChance)
         {
@@ -123,12 +123,14 @@ internal static class BattleUpgradeStatusUIPatch
             return;
         }
 
+        BattleUpgradeHudConfig config = ExtraBattleUpgradesPlugin.HudConfig;
+
         _panicIcon = CreateIcon(
             sourceText.transform,
             BattleUpgradeIconPainter.LightningSprite(),
             "Panic Response Icon",
-            new Vector3(68f, -23f, 0f),
-            new Vector2(11f, 11f));
+            new Vector3(config.PanicIconX.Value, config.PanicIconY.Value, 0f),
+            new Vector2(config.PanicIconSize.Value, config.PanicIconSize.Value));
         
     }
 
@@ -139,12 +141,14 @@ internal static class BattleUpgradeStatusUIPatch
             return;
         }
 
+        BattleUpgradeHudConfig config = ExtraBattleUpgradesPlugin.HudConfig;
+
         _secondChanceIcon = CreateIcon(
             sourceText.transform,
             BattleUpgradeIconPainter.HeartSprite(),
             "Second Chance Icon",
-            new Vector3(68f, -23f, 0f),
-            new Vector2(15f, 15f));
+            new Vector3(config.SecondChanceIconX.Value, config.SecondChanceIconY.Value, 0f),
+            new Vector2(config.SecondChanceIconSize.Value, config.SecondChanceIconSize.Value));
         
     }
 

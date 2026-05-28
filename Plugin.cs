@@ -1,12 +1,12 @@
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
-using ExtraBattleUpgrades.Upgrades;
+using System.IO;
+using System.Reflection;
 using UnityEngine;
+
+using ExtraBattleUpgrades.Upgrades;
+using ExtraBattleUpgrades.Hud;
 
 namespace ExtraBattleUpgrades;
 
@@ -26,6 +26,7 @@ public sealed class ExtraBattleUpgradesPlugin : BaseUnityPlugin
     internal static ShockGripShopUpgrade ShockGrip { get; private set; }
     internal static SecondChanceShopUpgrade SecondChance { get; private set; }
     internal static PanicResponseShopUpgrade PanicResponse { get; private set; }
+    internal static BattleUpgradeHudConfig HudConfig { get; private set; }
     
     private Harmony _harmony;
     private bool _statsLabelsReady;
@@ -44,7 +45,8 @@ public sealed class ExtraBattleUpgradesPlugin : BaseUnityPlugin
         ShockGrip = new ShockGripShopUpgrade(Config, bundle);
         SecondChance = new SecondChanceShopUpgrade(Config, bundle);
         PanicResponse = new PanicResponseShopUpgrade(Config, bundle);
-
+        HudConfig = new BattleUpgradeHudConfig(Config);
+        
         Armor.Register();
         Overcharge.Register();
         EnergyLeech.Register();
@@ -75,13 +77,7 @@ public sealed class ExtraBattleUpgradesPlugin : BaseUnityPlugin
         {
             return;
         }
-
-        GrantStartingLevels(Armor);
-        GrantStartingLevels(Overcharge);
-        GrantStartingLevels(EnergyLeech);
-        GrantStartingLevels(ShockGrip);
-        GrantStartingLevels(SecondChance);
-        GrantStartingLevels(PanicResponse);
+        
     }
 
     private void OnDestroy()
@@ -118,28 +114,6 @@ public sealed class ExtraBattleUpgradesPlugin : BaseUnityPlugin
             displayName = displayName,
             displayNameLocalized = null
         });
-    }
-
-    private static void GrantStartingLevels(ShopUpgrade upgrade)
-    {
-        if (!upgrade.Enabled.Value || upgrade.RegisteredUpgrade == null || upgrade.StartingLevel.Value <= 0)
-        {
-            return;
-        }
-
-        IReadOnlyList<PlayerAvatar> players = GameDirector.instance?.PlayerList;
-        if (players == null || players.Count == 0)
-        {
-            return;
-        }
-
-        foreach (PlayerAvatar player in players.Where(player => player != null))
-        {
-            if (upgrade.RegisteredUpgrade.GetLevel(player) < upgrade.StartingLevel.Value)
-            {
-                upgrade.RegisteredUpgrade.SetLevel(player, upgrade.StartingLevel.Value);
-            }
-        }
     }
 
     private static AssetBundle ReadBundledAssets()

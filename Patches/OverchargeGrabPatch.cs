@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using HarmonyLib;
 using UnityEngine;
 
@@ -10,23 +9,52 @@ internal static class OverchargeGrabPatch
 {
     private static readonly AccessTools.FieldRef<PhysGrabber, PlayerAvatar> OwnerRef =
         AccessTools.FieldRefAccess<PhysGrabber, PlayerAvatar>("playerAvatar");
+    
+    private static readonly AccessTools.FieldRef<PhysGrabber, float> OverchargeFloatRef =
+        AccessTools.FieldRefAccess<PhysGrabber, float>("physGrabBeamOverChargeFloat");
 
-    public static bool Prepare()
-    {
-        return HasPhysGrabberMethod("PhysGrabOverCharge") && HasPhysGrabberMethod("PhysGrabOverChargeLogic");
-    }
+    private static readonly AccessTools.FieldRef<PhysGrabber, byte> OverchargeByteRef =
+        AccessTools.FieldRefAccess<PhysGrabber, byte>("physGrabBeamOverCharge");
+    
+    private static readonly AccessTools.FieldRef<PhysGrabber, float> OverchargeAmountRef =
+        AccessTools.FieldRefAccess<PhysGrabber, float>("physGrabBeamOverChargeAmount");
 
     [HarmonyPatch("PhysGrabOverCharge")]
-    [HarmonyPrefix]
-    private static void ReduceChargeGain(PhysGrabber __instance, ref float _amount, ref float _multiplier)
+    [HarmonyPostfix]
+    private static void ReduceFinalOverchargeGain(
+        PhysGrabber __instance,
+        float __state)
     {
         if (!TryGetChargeUpgrade(out PlayerAvatar player, __instance))
         {
             return;
         }
+        
+        float amount = OverchargeAmountRef(__instance);
+        float slowedAmount = ExtraBattleUpgradesPlugin.Overcharge.SlowOvercharge(amount, player);
+        OverchargeAmountRef(__instance) = slowedAmount;
+        
+        float current = OverchargeFloatRef(__instance);
+        if (current <= __state)
+        {
+            return;
+        }
 
-        _amount = ExtraBattleUpgradesPlugin.Overcharge.SlowOvercharge(_amount, player);
-        _multiplier = ExtraBattleUpgradesPlugin.Overcharge.SlowOvercharge(_multiplier, player);
+        float vanillaGain = current - __state;
+        float upgradedGain = ExtraBattleUpgradesPlugin.Overcharge.SlowOvercharge(vanillaGain, player);
+        
+        OverchargeFloatRef(__instance) = Mathf.Clamp01(__state + upgradedGain);
+        OverchargeByteRef(__instance) = (byte)(OverchargeFloatRef(__instance) * 200f);
+        
+    }
+    
+    [HarmonyPatch("PhysGrabOverCharge")]
+    [HarmonyPrefix]
+    private static void RememberOverchargeBeforeGain(
+        PhysGrabber __instance,
+        out float __state)
+    {
+        __state = OverchargeFloatRef(__instance);
     }
 
     [HarmonyPatch("PhysGrabOverChargeLogic")]
@@ -54,7 +82,7 @@ internal static class OverchargeGrabPatch
             return;
         }
 
-        float vanillaRecovery = 0.1f * Time.deltaTime;
+        float vanillaRecovery = ExtraBattleUpgradesPlugin.Overcharge.RecoveryBasePerSecond() * Time.deltaTime;
         float upgradedRecovery = ExtraBattleUpgradesPlugin.Overcharge.SlowOvercharge(vanillaRecovery, player);
         float recoveryBonus = Math.Max(0f, vanillaRecovery - upgradedRecovery);
 
@@ -76,8 +104,4 @@ internal static class OverchargeGrabPatch
             && ExtraBattleUpgradesPlugin.Overcharge.RegisteredUpgrade != null;
     }
 
-    private static bool HasPhysGrabberMethod(string methodName)
-    {
-        return typeof(PhysGrabber).GetMethods().Any(method => method.Name == methodName);
-    }
 }

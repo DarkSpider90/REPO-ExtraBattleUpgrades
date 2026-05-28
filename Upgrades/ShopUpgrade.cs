@@ -14,7 +14,6 @@ internal abstract class ShopUpgrade
 
     internal ConfigEntry<bool> Enabled { get; }
     internal ConfigEntry<float> PriceMultiplier { get; }
-    internal ConfigEntry<int> StartingLevel { get; }
     internal PlayerUpgrade RegisteredUpgrade { get; private set; }
 
     protected abstract string UpgradeId { get; }
@@ -34,12 +33,7 @@ internal abstract class ShopUpgrade
         string configGroup = $"{_label} Upgrade";
         Enabled = config.Bind(configGroup, "Enabled", true, $"Enable the {_label} upgrade.");
         PriceMultiplier = config.Bind(configGroup, "Price Multiplier", _defaultPriceMultiplier, "Multiplier applied to the base shop price.");
-        StartingLevel = config.Bind(
-            configGroup,
-            "Starting Level",
-            0,
-            new ConfigDescription($"How many {_label} levels every player starts a run with.", new AcceptableValueRange<int>(0, 100)));
-    }
+     }
 
     internal void Register()
     {
