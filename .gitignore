@@ -1,26 +1,13 @@
-# Build outputs
+# Build folders
 bin/
 obj/
 dist/
 
-# Generated asset bundle copied from the Unity project
-Assets/extra_fun_upgrade_assets
-Assets/extra_battle_upgrades_assets
-
-# Local packaging/staging folders
-stage_*/
-*.zip
-
-# Debug symbols and transient .NET files
-*.pdb
-*.deps.json
-
-# Local editor and OS files
-.vs/
+# JetBrains
 .idea/
+
+# User/system files
 *.user
 *.suo
-*.tmp
-*.log
+.DS_Store
 Thumbs.db
-Desktop.ini

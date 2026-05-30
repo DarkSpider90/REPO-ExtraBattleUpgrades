@@ -19,7 +19,7 @@ Reduces incoming damage.
 
 ![Preview](https://raw.githubusercontent.com/DarkSpider90/REPO-ExtraBattleUpgrades/main/images/ArmorUpgrade.png)
 
-Each level reduces damage taken by 5%.
+Each level reduces damage taken.
 
 Damage reduction is always rounded in the player's favor.
 
@@ -29,12 +29,13 @@ Increases how long enemies can be held before overload.
 
 ![Preview](https://raw.githubusercontent.com/DarkSpider90/REPO-ExtraBattleUpgrades/main/images/OverchargeUpgrade.png)
 
-This upgrade slows overcharge buildup and improves overcharge recovery while grabbing enemies.
+This upgrade slows overcharge buildup, improves overcharge recovery, and increases enemy hold stability while grabbing enemies.
 
-The system modifies both:
+The system modifies:
 
-- overcharge buildup speed
-- overcharge recovery behavior
+* overcharge buildup speed
+* overcharge recovery speed
+* enemy hold duration before escape
 
 ### Second Chance
 
@@ -108,19 +109,20 @@ Shock damage is applied repeatedly while the enemy remains airborne and controll
 
 ### Panic Response
 
-An emergency adrenaline survival upgrade that activates after taking damage.
+Improves sprint efficiency and helps you escape dangerous situations.
 
 ![Preview](https://raw.githubusercontent.com/DarkSpider90/REPO-ExtraBattleUpgrades/main/images/PanicResponseUpgrade.png)
 
-When triggered:
+This upgrade passively reduces stamina consumption while sprinting.
 
-movement speed increases
-stamina becomes infinite
-stamina UI turns blue
-a special pink lightning HUD icon appears while the effect is ready
-the icon turns gray during cooldown
+When you take damage, Panic Response can also trigger a temporary emergency boost that gives increased movement speed and infinite stamina for a short duration.
 
-Designed for aggressive recovery, escape situations, and chaotic close-range survival.
+The upgrade improves:
+
+- sprint stamina efficiency
+- emergency movement speed
+- temporary stamina recovery during panic effect
+- survival chances after taking damage
 
 ## Detailed Upgrade Scaling
 

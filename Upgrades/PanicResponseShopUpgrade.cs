@@ -21,6 +21,10 @@ internal sealed class PanicResponseShopUpgrade : ShopUpgrade
 
     private readonly ConfigEntry<float> _speedMultiplierLevel1To2;
     private readonly ConfigEntry<float> _speedMultiplierLevel3Plus;
+    
+    private readonly ConfigEntry<float> _sprintDrainReductionPerLevelFirstTen;
+    private readonly ConfigEntry<float> _sprintDrainReductionPerLevelAfterTen;
+    private readonly ConfigEntry<float> _sprintDrainMinimumMultiplier;
 
     internal PanicResponseShopUpgrade(ConfigFile config, AssetBundle bundle)
         : base(
@@ -83,6 +87,24 @@ internal sealed class PanicResponseShopUpgrade : ShopUpgrade
             "Speed Multiplier Level 3 Plus",
             1.35f,
             "Speed multiplier from level 3 and above. 1.35 = 35% faster.");
+        
+        _sprintDrainReductionPerLevelFirstTen = config.Bind(
+            "Panic Response Upgrade",
+            "Sprint Drain Reduction Per Level First Ten",
+            0.05f,
+            "Passive sprint stamina drain reduction per Panic Response level from level 1 to 10. 0.05 = 5%.");
+
+        _sprintDrainReductionPerLevelAfterTen = config.Bind(
+            "Panic Response Upgrade",
+            "Sprint Drain Reduction Per Level After Ten",
+            0.02f,
+            "Passive sprint stamina drain reduction per Panic Response level after level 10. 0.02 = 2%.");
+
+        _sprintDrainMinimumMultiplier = config.Bind(
+            "Panic Response Upgrade",
+            "Sprint Drain Minimum Multiplier",
+            0.1f,
+            "Minimum sprint stamina drain multiplier. 0.1 = sprint can never cost less than 10% of vanilla.");
     }
 
     internal float DurationSeconds(PlayerAvatar player)
@@ -146,5 +168,24 @@ internal sealed class PanicResponseShopUpgrade : ShopUpgrade
         }
 
         return Math.Max(1f, _speedMultiplierLevel3Plus.Value);
+    }
+    
+    internal float SprintDrainMultiplier(PlayerAvatar player)
+    {
+        int level = GetLevel(player);
+        if (level <= 0)
+        {
+            return 1f;
+        }
+
+        int firstTenLevels = Math.Min(level, 10);
+        int extraLevels = Math.Max(0, level - 10);
+
+        float reduction =
+            firstTenLevels * Math.Max(0f, _sprintDrainReductionPerLevelFirstTen.Value)
+            + extraLevels * Math.Max(0f, _sprintDrainReductionPerLevelAfterTen.Value);
+
+        float multiplier = 1f - reduction;
+        return Mathf.Max(Mathf.Clamp01(_sprintDrainMinimumMultiplier.Value), multiplier);
     }
 }

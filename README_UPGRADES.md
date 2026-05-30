@@ -52,11 +52,13 @@ Increases safe enemy hold time before overload.
 
 The upgrade improves:
 
-* overcharge capacity
-* overload tolerance
-* enemy hold duration
+* overcharge buildup resistance
+* overcharge recovery speed
+* enemy hold stability before escape attempts
 
 ## Scaling
+
+Overcharge buildup and recovery:
 
 * Level 1 = +5%
 * Level 2 = +10%
@@ -79,6 +81,8 @@ Examples:
 * Level 11 = +51%
 * Level 12 = +52%
 * Level 20 = +60%
+
+Enemy hold stability uses a reduced multiplier of the Overcharge bonus to prevent excessively long grabs.
 
 ---
 
@@ -251,69 +255,51 @@ Shock Grip correctly credits multiplayer damage ownership.
 
 # Panic Response
 
-An emergency adrenaline survival upgrade.
+Improves sprint efficiency and grants an emergency movement boost after taking damage.
 
-Activates automatically after taking damage.
+## Passive Effect
 
-When active:
+Panic Response passively reduces stamina consumption while sprinting.
 
-* movement speed increases
-* stamina becomes infinite
-* stamina UI turns blue
-* pink lightning HUD icon becomes active
-* icon turns gray during cooldown
+## Panic Effect
 
-Designed for:
+When the player takes damage, Panic Response can activate a temporary panic state.
 
-* emergency escapes
-* aggressive repositioning
-* chaotic close-range survival
-* risky revive situations
+While active:
 
-## Scaling
+* movement speed is increased
+* stamina is restored continuously
+* sprinting can be maintained for the duration of the effect
 
-### Level 1
+The panic effect has a cooldown before it can activate again.
 
-* +1 speed
-* infinite stamina
-* 3 seconds duration
-* 60 seconds cooldown
+## Sprint Stamina Scaling
 
-### Level 2
+* Level 1 = -5% sprint stamina usage
+* Level 2 = -10%
+* Level 3 = -15%
+* Level 4 = -20%
+* Level 5 = -25%
+* Level 6 = -30%
+* Level 7 = -35%
+* Level 8 = -40%
+* Level 9 = -45%
+* Level 10 = -50%
 
-* +1 speed
-* 4 seconds duration
-* 60 seconds cooldown
+After level 10:
 
-### Level 3
+Each additional level reduces sprint stamina usage by:
++2%
 
-* +2 speed
-* 4 seconds duration
-* 60 seconds cooldown
+Examples:
 
-### Level 4
+* Level 11 = -52%
+* Level 12 = -54%
+* Level 20 = -70%
 
-* +2 speed
-* 5 seconds duration
-* 60 seconds cooldown
+## Panic Effect Scaling
 
-After level 4:
-
-* duration no longer increases
-* cooldown reduction progression begins
-
-## Cooldown Progression
-
-* Level 5 = 55 seconds
-* Level 6 = 50 seconds
-* Level 7 = 45 seconds
-* Level 8 = 40 seconds
-* Level 9 = 35 seconds
-* Level 10 = 30 seconds
-
-Level 10 is the hard cap.
-
-Additional levels do not improve the upgrade further.
+The panic effect duration, cooldown, and speed multiplier can be configured in the config file.
 
 ---
 
